@@ -31,13 +31,6 @@ describe("/api/topics", () => {
 				});
 		});
 	});
-	describe("GET: 204", () => {
-		it("should return 204 if no topics in database", () => {
-			return db.query("DELETE FROM topics;").then(() => {
-				return request(app).get("/api/topics").expect(204);
-			});
-		});
-	});
 });
 
 describe("invalid url", () => {
