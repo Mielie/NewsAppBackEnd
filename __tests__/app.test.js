@@ -1,0 +1,108 @@
+const app = require("../app");
+const request = require("supertest");
+const testData = require("../db/data/test-data/");
+const seed = require("../db/seeds/seed");
+const db = require("../db/connection");
+
+beforeEach(() => seed(testData));
+
+afterAll(() => db.end());
+
+describe("/api/topics", () => {
+	describe("GET: 200", () => {
+		it("should return a 200 code and an array of topics", () => {
+			return request(app)
+				.get("/api/topics")
+				.expect(200)
+				.then(({ body }) => {
+					const { topics } = body;
+					expect(topics).toBeInstanceOf(Array);
+					expect(topics).toHaveLength(3);
+					topics.forEach((topic) => {
+						expect(topic).toHaveProperty(
+							"slug",
+							expect.any(String)
+						);
+						expect(topic).toHaveProperty(
+							"description",
+							expect.any(String)
+						);
+					});
+				});
+		});
+	});
+	describe("GET: 204", () => {
+		it("should return 204 if no topics in database", () => {
+			return db.query("DELETE FROM topics;").then(() => {
+				return request(app).get("/api/topics").expect(204);
+			});
+		});
+	});
+});
+
+describe.only("/api/articles", () => {
+	describe("GET: 200", () => {
+		it("should return a 200 code and an array of articles", () => {
+			return request(app)
+				.get("/api/articles")
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toBeInstanceOf(Array);
+					expect(articles).toHaveLength(12);
+					articles.forEach((article) => {
+						expect(article).toHaveProperty(
+							"author",
+							expect.any(String)
+						);
+						expect(article).toHaveProperty(
+							"title",
+							expect.any(String)
+						);
+						expect(article).toHaveProperty(
+							"article_id",
+							expect.any(Number)
+						);
+						expect(article).toHaveProperty(
+							"topic",
+							expect.any(String)
+						);
+						expect(article).toHaveProperty(
+							"created_at",
+							expect.any(String)
+						);
+						expect(article).toHaveProperty(
+							"votes",
+							expect.any(Number)
+						);
+						expect(article).toHaveProperty(
+							"article_img_url",
+							expect.any(String)
+						);
+						expect(article).toHaveProperty(
+							"comment_count",
+							expect.any(String)
+						);
+					});
+				});
+		});
+
+		it("should return articles sorted by date descending", () => {
+			return request(app)
+				.get("/api/articles")
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toBeSortedBy("created_at", {
+						descending: true,
+					});
+				});
+		});
+	});
+});
+
+describe("invalid url", () => {
+	it("should return 404 if url not valid", () => {
+		return request(app).get("/api/nonsense").expect(404);
+	});
+});
