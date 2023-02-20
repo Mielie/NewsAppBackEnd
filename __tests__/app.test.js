@@ -142,6 +142,59 @@ describe("/api/articles/:article_id", () => {
 	});
 });
 
+describe("/api/articles/:article_id/comments", () => {
+	describe("GET: 200", () => {
+		it("should return an array of comments for the given article", () => {
+			const article_id = 1;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(200)
+				.then(({ body }) => {
+					const { comments } = body;
+					expect(comments).toHaveLength(11);
+					comments.forEach((comment) => {
+						expect(comment).toHaveProperty(
+							"comment_id",
+							expect.any(Number)
+						);
+						expect(comment).toHaveProperty(
+							"votes",
+							expect.any(Number)
+						);
+						expect(comment).toHaveProperty(
+							"created_at",
+							expect.any(String)
+						);
+						expect(comment).toHaveProperty(
+							"author",
+							expect.any(String)
+						);
+						expect(comment).toHaveProperty(
+							"body",
+							expect.any(String)
+						);
+						expect(comment).toHaveProperty(
+							"article_id",
+							expect.any(Number)
+						);
+					});
+				});
+		});
+		it("should return comments most recent first", () => {
+			const article_id = 1;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(200)
+				.then(({ body }) => {
+					const { comments } = body;
+					expect(comments).toBeSortedBy("created_at", {
+						descending: true,
+					});
+				});
+		});
+	});
+});
+
 describe("invalid url", () => {
 	it("should return 404 if url not valid", () => {
 		return request(app).get("/api/nonsense").expect(404);
