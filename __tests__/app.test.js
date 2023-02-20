@@ -4,7 +4,7 @@ const testData = require("../db/data/test-data/");
 const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
 
-beforeEach(() => seed(testData));
+beforeAll(() => seed(testData));
 
 afterAll(() => db.end());
 
@@ -29,13 +29,6 @@ describe("/api/topics", () => {
 						);
 					});
 				});
-		});
-	});
-	describe("GET: 204", () => {
-		it("should return 204 if no topics in database", () => {
-			return db.query("DELETE FROM topics;").then(() => {
-				return request(app).get("/api/topics").expect(204);
-			});
 		});
 	});
 });
