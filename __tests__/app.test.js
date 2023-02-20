@@ -123,6 +123,23 @@ describe("/api/articles/:article_id", () => {
 				});
 		});
 	});
+	describe("GET: 204", () => {
+		it("should return 204 if article is not in DB", () => {
+			const article_id = 13;
+			return request(app).get(`/api/articles/${article_id}`).expect(204);
+		});
+	});
+	describe("GET: 400", () => {
+		it("should return 400 if article_id is not a number", () => {
+			const article_id = "invalid_id";
+			return request(app)
+				.get(`/api/articles/${article_id}`)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+	});
 });
 
 describe("invalid url", () => {

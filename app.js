@@ -6,7 +6,11 @@ const {
 } = require("./controllers/articlesController");
 const { getTopics } = require("./controllers/topicsController");
 
-const { customErrorHandler } = require("./controllers/errorHandlerControllers");
+const {
+    sqlErrorHandler,
+    customErrorHandler,
+} = require("./controllers/errorHandlerControllers");
+const errorHandlers = [sqlErrorHandler, customErrorHandler];
 
 const app = express();
 
@@ -16,6 +20,6 @@ app.get("/api/articles/:article_id", getArticleById);
 
 app.get("/api/topics", getTopics);
 
-app.use(customErrorHandler);
+app.use(...errorHandlers);
 
 module.exports = app;
