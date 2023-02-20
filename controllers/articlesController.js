@@ -23,7 +23,9 @@ exports.getArticleById = (request, response, next) => {
 
 exports.getArticleComments = (request, response, next) => {
 	const { article_id } = request.params;
-	return fetchArticleComments(article_id).then((comments) => {
-		response.status(200).send({ comments });
-	});
+	return fetchArticleComments(article_id)
+		.then((comments) => {
+			response.status(200).send({ comments });
+		})
+		.catch(next);
 };

@@ -193,6 +193,33 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
+
+	describe("GET: 204", () => {
+		it("should return 204 if article does not exist with article_id", () => {
+			const article_id = 13;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(204);
+		});
+		it("should return 204 if article exists but has no comments", () => {
+			const article_id = 2;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(204);
+		});
+	});
+
+	describe("GET: 400", () => {
+		it("should return 400 if article id is not a number", () => {
+			const article_id = "invalid_id";
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+	});
 });
 
 describe("invalid url", () => {
