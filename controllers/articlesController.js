@@ -42,5 +42,6 @@ exports.updateArticleVotes = (request, response, next) => {
 		.then((newVotes) => patchArticle(article_id, newVotes))
 		.then((article) => {
 			return response.status(200).send({ article });
-		});
+		})
+		.catch(next);
 };
