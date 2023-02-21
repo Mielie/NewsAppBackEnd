@@ -196,6 +196,34 @@ describe("/api/articles/:article_id/comments", () => {
 				);
 		});
 	});
+	describe("POST: 404", () => {
+		it("should return 404 if article_id does not exist", () => {
+			const article_id = 13;
+			const new_comment = {
+				body: "this is a new comment",
+				author: "lurker",
+				votes: 0,
+			};
+			return request(app)
+				.post(`/api/articles/${article_id}/comments`)
+				.send(new_comment)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("article not found");
+				});
+		});
+	});
+	describe("POST: 400", () => {
+		it("should return 400 if article_id is not a number", () => {
+			// body...
+		});
+		it("should return 400 if comment is missing necessary keys", () => {
+			// body...
+		});
+		it("should return 400 if author in comment does not exist", () => {
+			// body...
+		});
+	});
 });
 describe("invalid url", () => {
 	it("should return 404 if url not valid", () => {
