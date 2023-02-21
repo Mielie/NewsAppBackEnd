@@ -123,10 +123,15 @@ describe("/api/articles/:article_id", () => {
 				});
 		});
 	});
-	describe("GET: 204", () => {
-		it("should return 204 if article is not in DB", () => {
+	describe("GET: 404", () => {
+		it("should return 404 if article is not in DB", () => {
 			const article_id = 13;
-			return request(app).get(`/api/articles/${article_id}`).expect(204);
+			return request(app)
+				.get(`/api/articles/${article_id}`)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("article not found");
+				});
 		});
 	});
 	describe("GET: 400", () => {
@@ -143,6 +148,90 @@ describe("/api/articles/:article_id", () => {
 });
 
 describe("/api/articles/:article_id/comments", () => {
+	describe("GET: 200", () => {
+		it("should return an array of comments for the given article", () => {
+			const article_id = 1;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(200)
+				.then(({ body }) => {
+					const { comments } = body;
+					expect(comments).toHaveLength(11);
+					comments.forEach((comment) => {
+						expect(comment).toHaveProperty(
+							"comment_id",
+							expect.any(Number)
+						);
+						expect(comment).toHaveProperty(
+							"votes",
+							expect.any(Number)
+						);
+						expect(comment).toHaveProperty(
+							"created_at",
+							expect.any(String)
+						);
+						expect(comment).toHaveProperty(
+							"author",
+							expect.any(String)
+						);
+						expect(comment).toHaveProperty(
+							"body",
+							expect.any(String)
+						);
+						expect(comment).toHaveProperty(
+							"article_id",
+							expect.any(Number)
+						);
+					});
+				});
+		});
+		it("should return comments most recent first", () => {
+			const article_id = 1;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(200)
+				.then(({ body }) => {
+					const { comments } = body;
+					expect(comments).toBeSortedBy("created_at", {
+						descending: true,
+					});
+				});
+		});
+		it("should return 200 if article exists but has no comments", () => {
+			const article_id = 2;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.comments).toHaveLength(0);
+				});
+		});
+	});
+
+	describe("GET: 404", () => {
+		it("should return 404 if article does not exist with article_id", () => {
+			const article_id = 13;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("article not found");
+				});
+		});
+	});
+
+	describe("GET: 400", () => {
+		it("should return 400 if article id is not a number", () => {
+			const article_id = "invalid_id";
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+	});
+
 	describe("POST: 201", () => {
 		it("should respond with a 201 and the newly created comment object", () => {
 			const article_id = 1;
@@ -196,7 +285,8 @@ describe("/api/articles/:article_id/comments", () => {
 				);
 		});
 	});
-	describe.skip("POST: 404", () => {
+
+	describe("POST: 404", () => {
 		it("should return 404 if article_id does not exist", () => {
 			const article_id = 13;
 			const new_comment = {
@@ -212,21 +302,64 @@ describe("/api/articles/:article_id/comments", () => {
 					expect(msg).toBe("article not found");
 				});
 		});
+		it("should return 404 if author (user) in comment does not exist", () => {
+			const article_id = 1;
+			const new_comment = {
+				body: "this is a new comment",
+				author: "author does not exist",
+				votes: 0,
+			};
+			return request(app)
+				.post(`/api/articles/${article_id}/comments`)
+				.send(new_comment)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("user not found");
+				});
+		});
 	});
-	describe.skip("POST: 400", () => {
+
+	describe("POST: 400", () => {
 		it("should return 400 if article_id is not a number", () => {
-			// body...
+			const article_id = "invalid_id";
+			const new_comment = {
+				body: "this is a new comment",
+				author: "lurker",
+				votes: 0,
+			};
+			return request(app)
+				.post(`/api/articles/${article_id}/comments`)
+				.send(new_comment)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
 		});
 		it("should return 400 if comment is missing necessary keys", () => {
-			// body...
-		});
-		it("should return 400 if author in comment does not exist", () => {
-			// body...
+			const article_id = 1;
+			const new_comment = {
+				author: "lurker",
+				votes: 0,
+			};
+			return request(app)
+				.post(`/api/articles/${article_id}/comments`)
+				.send(new_comment)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("missing parameter");
+				});
 		});
 	});
 });
+
 describe("invalid url", () => {
 	it("should return 404 if url not valid", () => {
-		return request(app).get("/api/nonsense").expect(404);
+		return request(app)
+			.get("/api/nonsense")
+			.expect(404)
+			.then(({ body }) => {
+				const { msg } = body;
+				expect(msg).toBe("Path not found");
+			});
 	});
 });
