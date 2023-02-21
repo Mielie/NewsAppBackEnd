@@ -10,8 +10,13 @@ const { getTopics } = require("./controllers/topicsController");
 const {
     sqlErrorHandler,
     customErrorHandler,
+    pathNotFoundHandler,
 } = require("./controllers/errorHandlerControllers");
-const errorHandlers = [sqlErrorHandler, customErrorHandler];
+const errorHandlers = [
+    pathNotFoundHandler,
+    sqlErrorHandler,
+    customErrorHandler,
+];
 
 const app = express();
 

@@ -123,10 +123,15 @@ describe("/api/articles/:article_id", () => {
 				});
 		});
 	});
-	describe("GET: 204", () => {
-		it("should return 204 if article is not in DB", () => {
+	describe("GET: 404", () => {
+		it("should return 404 if article is not in DB", () => {
 			const article_id = 13;
-			return request(app).get(`/api/articles/${article_id}`).expect(204);
+			return request(app)
+				.get(`/api/articles/${article_id}`)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("article not found");
+				});
 		});
 	});
 	describe("GET: 400", () => {
@@ -194,18 +199,24 @@ describe("/api/articles/:article_id/comments", () => {
 		});
 	});
 
-	describe("GET: 204", () => {
-		it("should return 204 if article does not exist with article_id", () => {
+	describe("GET: 404", () => {
+		it("should return 404 if article does not exist with article_id", () => {
 			const article_id = 13;
 			return request(app)
 				.get(`/api/articles/${article_id}/comments`)
-				.expect(204);
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("article not found");
+				});
 		});
-		it("should return 204 if article exists but has no comments", () => {
+		it("should return 200 if article exists but has no comments", () => {
 			const article_id = 2;
 			return request(app)
 				.get(`/api/articles/${article_id}/comments`)
-				.expect(204);
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.comments).toHaveLength(0);
+				});
 		});
 	});
 
@@ -224,6 +235,12 @@ describe("/api/articles/:article_id/comments", () => {
 
 describe("invalid url", () => {
 	it("should return 404 if url not valid", () => {
-		return request(app).get("/api/nonsense").expect(404);
+		return request(app)
+			.get("/api/nonsense")
+			.expect(404)
+			.then(({ body }) => {
+				const { msg } = body;
+				expect(msg).toBe("Path not found");
+			});
 	});
 });

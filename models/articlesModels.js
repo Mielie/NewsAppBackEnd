@@ -21,7 +21,7 @@ exports.fetchArticle = (article_id) => {
 		.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
 		.then(({ rows, rowCount }) => {
 			if (!rowCount) {
-				return Promise.reject("no content");
+				return Promise.reject("article not found");
 			}
 			return rows[0];
 		});
@@ -34,9 +34,6 @@ exports.fetchArticleComments = (article_id) => {
 			[article_id]
 		)
 		.then(({ rows, rowCount }) => {
-			if (!rowCount) {
-				return Promise.reject("no content");
-			}
 			return rows;
 		});
 };

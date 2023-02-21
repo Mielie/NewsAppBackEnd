@@ -2,6 +2,7 @@ const {
 	fetchArticles,
 	fetchArticle,
 	fetchArticleComments,
+	selectArticleById,
 } = require("../models/articlesModels");
 
 exports.getArticles = (request, response, next) => {
@@ -23,8 +24,10 @@ exports.getArticleById = (request, response, next) => {
 
 exports.getArticleComments = (request, response, next) => {
 	const { article_id } = request.params;
-	return fetchArticleComments(article_id)
-		.then((comments) => {
+	const checkArticlePromise = fetchArticle(article_id);
+	const fetchCommentsPromise = fetchArticleComments(article_id);
+	return Promise.all([fetchCommentsPromise, checkArticlePromise])
+		.then(([comments]) => {
 			response.status(200).send({ comments });
 		})
 		.catch(next);
