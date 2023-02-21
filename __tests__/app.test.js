@@ -263,26 +263,29 @@ describe("/api/articles/:article_id/comments", () => {
 					);
 				});
 		});
-		it("should add the comment to the comments table", () => {
-			const article_id = 2;
+		it("should ignore superfluous keys passed by the user", () => {
+			const article_id = 1;
 			const new_comment = {
 				body: "this is a new comment",
 				author: "lurker",
+				extra_parameter: "this is unnecessary",
 				votes: 0,
 			};
 			return request(app)
 				.post(`/api/articles/${article_id}/comments`)
 				.send(new_comment)
 				.expect(201)
-				.then(() =>
-					db
-						.query(
-							`SELECT * FROM comments WHERE article_id = ${article_id}`
-						)
-						.then(({ rows }) => {
-							expect(rows).toHaveLength(1);
-						})
-				);
+				.then(({ body }) => {
+					const { comment } = body;
+					expect(comment).toHaveProperty(
+						"body",
+						"this is a new comment"
+					);
+					expect(comment).not.toHaveProperty(
+						"extra_parameter",
+						"this is unncessary"
+					);
+				});
 		});
 	});
 
