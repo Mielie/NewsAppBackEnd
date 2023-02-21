@@ -59,3 +59,17 @@ exports.fetchArticleComments = (article_id) => {
 			return rows;
 		});
 };
+
+exports.patchArticle = (article_id, newVotes) => {
+	return db
+		.query(
+			`UPDATE articles
+		SET votes = $1
+		WHERE article_id = $2
+		RETURNING *;`,
+			[newVotes, article_id]
+		)
+		.then(({ rows }) => {
+			return rows[0];
+		});
+};
