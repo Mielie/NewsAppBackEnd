@@ -16,7 +16,11 @@ exports.customErrorHandler = (error, request, response, next) => {
 	} else if (error === "article not found") {
 		response.status(404).send({ msg: error });
 	} else {
-		console.log(error);
-		response.status(500).send(error);
+		next(error);
 	}
+};
+
+exports.serverSideErrorHandler = (error, request, response, next) => {
+	console.log(error);
+	response.status(500).send(error);
 };

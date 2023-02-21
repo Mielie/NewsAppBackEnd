@@ -197,6 +197,15 @@ describe("/api/articles/:article_id/comments", () => {
 					});
 				});
 		});
+		it("should return 200 if article exists but has no comments", () => {
+			const article_id = 2;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.comments).toHaveLength(0);
+				});
+		});
 	});
 
 	describe("GET: 404", () => {
@@ -207,15 +216,6 @@ describe("/api/articles/:article_id/comments", () => {
 				.expect(404)
 				.then(({ body: { msg } }) => {
 					expect(msg).toBe("article not found");
-				});
-		});
-		it("should return 200 if article exists but has no comments", () => {
-			const article_id = 2;
-			return request(app)
-				.get(`/api/articles/${article_id}/comments`)
-				.expect(200)
-				.then(({ body }) => {
-					expect(body.comments).toHaveLength(0);
 				});
 		});
 	});

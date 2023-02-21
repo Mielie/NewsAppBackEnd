@@ -11,12 +11,8 @@ const {
     sqlErrorHandler,
     customErrorHandler,
     pathNotFoundHandler,
+    serverSideErrorHandler,
 } = require("./controllers/errorHandlerControllers");
-const errorHandlers = [
-    pathNotFoundHandler,
-    sqlErrorHandler,
-    customErrorHandler,
-];
 
 const app = express();
 
@@ -28,6 +24,12 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 
 app.get("/api/topics", getTopics);
 
+const errorHandlers = [
+    pathNotFoundHandler,
+    sqlErrorHandler,
+    customErrorHandler,
+    serverSideErrorHandler,
+];
 app.use(...errorHandlers);
 
 module.exports = app;
