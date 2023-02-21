@@ -443,6 +443,31 @@ describe("/api/articles/:article_id/comments", () => {
 	});
 });
 
+describe("/api/users", () => {
+	describe("GET: 200", () => {
+		it("should return 200 and an array of users", () => {
+			return request(app)
+				.get("/api/users")
+				.expect(200)
+				.then(({ body }) => {
+					const { users } = body;
+					expect(users).toHaveLength(4);
+					users.forEach((user) => {
+						expect(user).toHaveProperty(
+							"username",
+							expect.any(String)
+						);
+						expect(user).toHaveProperty("name", expect.any(String));
+						expect(user).toHaveProperty(
+							"avatar_url",
+							expect.any(String)
+						);
+					});
+				});
+		});
+	});
+});
+
 describe("invalid url", () => {
 	it("should return 404 if url not valid", () => {
 		return request(app)

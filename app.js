@@ -8,6 +8,7 @@ const {
     updateArticleVotes,
 } = require("./controllers/articlesController");
 const { getTopics } = require("./controllers/topicsController");
+const { getUsers } = require("./controllers/usersController");
 
 const {
     sqlErrorHandler,
@@ -30,7 +31,10 @@ app.patch("/api/articles/:article_id", updateArticleVotes);
 
 app.get("/api/topics", getTopics);
 
+app.get("/api/users", getUsers);
+
 app.post("/api/articles/:article_id/comments", putArticleComment);
+
 
 const errorHandlers = [
     pathNotFoundHandler,
