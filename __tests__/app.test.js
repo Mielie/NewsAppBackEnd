@@ -142,6 +142,61 @@ describe("/api/articles/:article_id", () => {
 	});
 });
 
+describe("/api/articles/:article_id/comments", () => {
+	describe("POST: 201", () => {
+		it("should respond with a 201 and the newly created comment object", () => {
+			const article_id = 1;
+			const new_comment = {
+				body: "this is a new comment",
+				author: "lurker",
+				votes: 0,
+			};
+			return request(app)
+				.post(`/api/articles/${article_id}/comments`)
+				.send(new_comment)
+				.expect(201)
+				.then(({ body }) => {
+					const { comment } = body;
+					expect(comment).toHaveProperty(
+						"body",
+						"this is a new comment"
+					);
+					expect(comment).toHaveProperty("author", "lurker");
+					expect(comment).toHaveProperty("votes", 0);
+					expect(comment).toHaveProperty("article_id", article_id);
+					expect(comment).toHaveProperty(
+						"comment_id",
+						expect.any(Number)
+					);
+					expect(comment).toHaveProperty(
+						"created_at",
+						expect.any(String)
+					);
+				});
+		});
+		it("should add the comment to the comments table", () => {
+			const article_id = 2;
+			const new_comment = {
+				body: "this is a new comment",
+				author: "lurker",
+				votes: 0,
+			};
+			return request(app)
+				.post(`/api/articles/${article_id}/comments`)
+				.send(new_comment)
+				.expect(201)
+				.then(() =>
+					db
+						.query(
+							`SELECT * FROM comments WHERE article_id = ${article_id}`
+						)
+						.then(({ rows }) => {
+							expect(rows).toHaveLength(1);
+						})
+				);
+		});
+	});
+});
 describe("invalid url", () => {
 	it("should return 404 if url not valid", () => {
 		return request(app).get("/api/nonsense").expect(404);
