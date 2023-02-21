@@ -3,6 +3,7 @@ const express = require("express");
 const {
     getArticles,
     getArticleById,
+    putArticleComment,
     getArticleComments,
     updateArticleVotes,
 } = require("./controllers/articlesController");
@@ -29,12 +30,15 @@ app.patch("/api/articles/:article_id", updateArticleVotes);
 
 app.get("/api/topics", getTopics);
 
+app.post("/api/articles/:article_id/comments", putArticleComment);
+
 const errorHandlers = [
     pathNotFoundHandler,
     sqlErrorHandler,
     customErrorHandler,
     serverSideErrorHandler,
 ];
+
 app.use(...errorHandlers);
 
 module.exports = app;
