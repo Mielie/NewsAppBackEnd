@@ -1,9 +1,12 @@
 const {
 	fetchArticles,
 	fetchArticle,
+	newCommentForArticleWithId,
 	fetchArticleComments,
 	selectArticleById,
+	patchArticle,
 } = require("../models/articlesModels");
+const { fetchUserById } = require("../models/usersModels");
 
 exports.getArticles = (request, response, next) => {
 	return fetchArticles()
@@ -22,6 +25,19 @@ exports.getArticleById = (request, response, next) => {
 		.catch(next);
 };
 
+exports.putArticleComment = (request, response, next) => {
+	const { article_id } = request.params;
+	const newComment = request.body;
+
+	return fetchArticle(article_id)
+		.then(() => fetchUserById(newComment.author))
+		.then(() => newCommentForArticleWithId(article_id, newComment))
+		.then((comment) => {
+			response.status(201).send({ comment });
+		})
+		.catch(next);
+};
+
 exports.getArticleComments = (request, response, next) => {
 	const { article_id } = request.params;
 	const checkArticlePromise = fetchArticle(article_id);
@@ -29,6 +45,18 @@ exports.getArticleComments = (request, response, next) => {
 	return Promise.all([fetchCommentsPromise, checkArticlePromise])
 		.then(([comments]) => {
 			response.status(200).send({ comments });
+		})
+		.catch(next);
+};
+
+exports.updateArticleVotes = (request, response, next) => {
+	const { article_id } = request.params;
+	const update = request.body;
+	return fetchArticle(article_id)
+		.then((article) => (article.votes += update.inc_votes))
+		.then((newVotes) => patchArticle(article_id, newVotes))
+		.then((article) => {
+			return response.status(200).send({ article });
 		})
 		.catch(next);
 };

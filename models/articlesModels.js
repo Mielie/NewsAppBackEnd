@@ -27,6 +27,28 @@ exports.fetchArticle = (article_id) => {
 		});
 };
 
+exports.newCommentForArticleWithId = (article_id, newComment) => {
+	const comment = [
+		newComment.body,
+		newComment.author,
+		newComment.votes,
+		article_id,
+	];
+
+	return db
+		.query(
+			`INSERT INTO comments
+		(body, author, votes, article_id)
+		VALUES
+		($1,$2,$3,$4)
+		RETURNING *;`,
+			comment
+		)
+		.then(({ rows }) => {
+			return rows[0];
+		});
+};
+
 exports.fetchArticleComments = (article_id) => {
 	return db
 		.query(
@@ -35,5 +57,19 @@ exports.fetchArticleComments = (article_id) => {
 		)
 		.then(({ rows, rowCount }) => {
 			return rows;
+		});
+};
+
+exports.patchArticle = (article_id, newVotes) => {
+	return db
+		.query(
+			`UPDATE articles
+		SET votes = $1
+		WHERE article_id = $2
+		RETURNING *;`,
+			[newVotes, article_id]
+		)
+		.then(({ rows }) => {
+			return rows[0];
 		});
 };
