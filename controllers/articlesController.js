@@ -5,12 +5,22 @@ const {
 	fetchArticleComments,
 	selectArticleById,
 	patchArticle,
+	checkTopic,
 } = require("../models/articlesModels");
 const { fetchUserById } = require("../models/usersModels");
 
 exports.getArticles = (request, response, next) => {
-	return fetchArticles()
-		.then((articles) => {
+	const { topic, sort_by, order } = request.query;
+
+	const promises = [];
+	promises.push(fetchArticles(topic, sort_by, order));
+
+	if (topic) {
+		promises.push(checkTopic(topic));
+	}
+
+	return Promise.all(promises)
+		.then(([articles]) => {
 			response.status(200).send({ articles });
 		})
 		.catch(next);

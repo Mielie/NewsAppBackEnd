@@ -1,19 +1,53 @@
 const db = require("../db/connection");
 
-exports.fetchArticles = () => {
-	return db
-		.query(
-			`SELECT articles.author, articles.title, article_id,
+exports.fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
+	const validSortBy = {
+		author: true,
+		title: true,
+		article_id: true,
+		topic: true,
+		created_at: true,
+		votes: true,
+		article_img_url: true,
+		comment_count: true,
+	};
+
+	const validOrder = {
+		asc: true,
+		desc: true,
+	};
+
+	let queryString = `SELECT articles.author, articles.title, article_id,
 			articles.topic, articles.created_at, articles.votes, 
 			articles.article_img_url, COUNT(comments) AS comment_count
 		FROM articles 
-		LEFT JOIN comments USING (article_id) 
-		GROUP BY articles.article_id
-		ORDER BY articles.created_at DESC;`
-		)
-		.then(({ rows }) => {
-			return rows;
-		});
+		LEFT JOIN comments USING (article_id)`;
+
+	const queryParams = [];
+
+	if (topic) {
+		queryString += ` WHERE topic = $1`;
+		queryParams.push(topic);
+	}
+
+	queryString += ` GROUP BY articles.article_id
+		ORDER BY `;
+
+	if (validSortBy[sort_by]) {
+		queryString += `${sort_by} `;
+	} else {
+		return Promise.reject("invalid query");
+	}
+
+	if (validOrder[order]) {
+		queryString += `${order};`;
+	} else {
+		return Promise.reject("invalid query");
+	}
+
+	return db.query(queryString, queryParams).then(({ rows }) => {
+		return rows;
+	});
 };
 
 exports.fetchArticle = (article_id) => {
@@ -71,5 +105,16 @@ exports.patchArticle = (article_id, newVotes) => {
 		)
 		.then(({ rows }) => {
 			return rows[0];
+		});
+};
+
+exports.checkTopic = (topic) => {
+	return db
+		.query(`SELECT * FROM topics WHERE slug = $1;`, [topic])
+		.then(({ rowCount }) => {
+			if (!rowCount) {
+				return Promise.reject("topic not found");
+			}
+			return true;
 		});
 };
