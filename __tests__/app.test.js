@@ -145,6 +145,20 @@ describe("/api/articles/:article_id", () => {
 				});
 		});
 	});
+	describe("PATCH: 200", () => {
+		it("should return 200 with the updated article", () => {
+			const article_id = 1;
+			const update = { inc_votes: -1 };
+			return request(app)
+				.patch(`/api/articles/${article_id}`)
+				.send(update)
+				.expect(200)
+				.then(({ body }) => {
+					const { article } = body;
+					expect(article).toHaveProperty("votes", 99);
+				});
+		});
+	});
 });
 
 describe("/api/articles/:article_id/comments", () => {
