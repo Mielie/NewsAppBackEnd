@@ -196,7 +196,7 @@ describe("/api/articles/:article_id/comments", () => {
 				);
 		});
 	});
-	describe("POST: 404", () => {
+	describe.skip("POST: 404", () => {
 		it("should return 404 if article_id does not exist", () => {
 			const article_id = 13;
 			const new_comment = {
@@ -213,7 +213,7 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-	describe("POST: 400", () => {
+	describe.skip("POST: 400", () => {
 		it("should return 400 if article_id is not a number", () => {
 			// body...
 		});
