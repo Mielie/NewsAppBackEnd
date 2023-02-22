@@ -556,6 +556,42 @@ describe("/api/users", () => {
 	});
 });
 
+describe("/api/comments/:comment_id", () => {
+	describe("DELETE: 204", () => {
+		it("should return 204 and no content when passed a valid comment_id", () => {
+			const comment_id = 1;
+			return request(app)
+				.delete(`/api/comments/${comment_id}`)
+				.expect(204)
+				.then(({ body }) => {
+					expect(body).toEqual({});
+				});
+		});
+	});
+	describe("DELETE: 400", () => {
+		it("should return 400 if user passes a comment_id that is not a number", () => {
+			const comment_id = "not_a_number";
+			return request(app)
+				.delete(`/api/comments/${comment_id}`)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+	});
+	describe("DELETE: 404", () => {
+		it("should return 404 if user passes a comment_id that is valid but does not exist", () => {
+			const comment_id = 21;
+			return request(app)
+				.delete(`/api/comments/${comment_id}`)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("comment not found");
+				});
+		});
+	});
+});
+
 describe("invalid url", () => {
 	it("should return 404 if url not valid", () => {
 		return request(app)
