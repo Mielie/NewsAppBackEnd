@@ -9,6 +9,7 @@ const {
 } = require("./controllers/articlesController");
 const { getTopics } = require("./controllers/topicsController");
 const { getUsers } = require("./controllers/usersController");
+const { deleteComment } = require("./controllers/commentsController");
 
 const {
     sqlErrorHandler,
@@ -35,6 +36,7 @@ app.get("/api/users", getUsers);
 
 app.post("/api/articles/:article_id/comments", putArticleComment);
 
+app.delete("/api/comments/:comment_id", deleteComment);
 
 const errorHandlers = [
     pathNotFoundHandler,
