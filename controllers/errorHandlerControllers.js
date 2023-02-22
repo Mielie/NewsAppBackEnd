@@ -24,6 +24,5 @@ exports.customErrorHandler = (error, request, response, next) => {
 };
 
 exports.serverSideErrorHandler = (error, request, response, next) => {
-	console.log(error, "<--- server side error handler");
 	response.status(500).send(error);
 };
