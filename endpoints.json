@@ -11,7 +11,7 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "queries": ["topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
@@ -23,5 +23,100 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves a single article with article_id",
+    "queries": [],
+    "exampleResponse": {
+      "article": {
+        "author": "unknown",
+        "title": "Lorem ipsum",
+        "article_id": 1,
+        "topic": "classics",
+        "created_at": "2020-04-21T16:06:00.000Z",
+        "votes": 0,
+        "article_img_url": "https://url.path.to.image.jpeg?w=700&h=700",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ex.",
+        "comment_count": 1
+      }
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "updates the article vote count when passed an object with a key of inc_votes that contains a number to increase the votes by",
+    "queries": [],
+    "exampleResponse": {
+      "article": {
+        "author": "unknown",
+        "title": "Lorem ipsum",
+        "article_id": 1,
+        "topic": "classics",
+        "created_at": "2020-04-21T16:06:00.000Z",
+        "votes": 0,
+        "article_img_url": "https://url.path.to.image.jpeg?w=700&h=700",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ex.",
+        "comment_count": 2
+      }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves up an array of comments for the provided article",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [{
+        "comment_id": 1,
+        "body": "Placeat voluptatum consequatur ducimus et eum molestiae impedit eveniet. Recusandae rerum voluptas quia mollitia quam velit iusto. Eum eos similique minima necessitatibus nemo. Iure deleniti omnis enim animi iste delectus et consequuntur.",
+        "article_id": 5,
+        "author": "unknown1",
+        "votes": 19,
+        "created_at": "2020-11-23T17:00:00.000Z"
+      },
+      {
+        "comment_id": 4,
+        "body": "Praesentium dolor doloribus sint. Quisquam molestiae dolorum asperiores animi omnis.",
+        "article_id": 5,
+        "author": "unknown2",
+        "votes": 3,
+        "created_at": "2020-09-03T01:06:00.000Z"
+      }]}
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "adds a new comment and serves up the newly create comment",
+    "queries": [],
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 6,
+        "body": "Placeat voluptatum consequatur ducimus et eum molestiae impedit eveniet. Recusandae rerum voluptas quia mollitia quam velit iusto. Eum eos similique minima necessitatibus nemo. Iure deleniti omnis enim animi iste delectus et consequuntur.",
+        "article_id": 3,
+        "author": "unknown3",
+        "votes": 0,
+        "created_at": "2020-11-23T17:00:00.000Z"
+      }
+    }
+  },
+  "GET /api/users": {
+    "description": "serves up an array of users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "tickle122",
+          "name": "Tom Tickle",
+          "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/d/d6/Mr-Tickle-9a.png/revision/latest?cb=20180127221953"
+        },
+        {
+          "username": "grumpy19",
+          "name": "Paul Grump",
+          "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/7/78/Mr-Grumpy-3A.PNG/revision/latest?cb=20170707233013"
+        },
+        {
+          "username": "happyamy2016",
+          "name": "Amy Happy",
+          "avatar_url": "https://vignette1.wikia.nocookie.net/mrmen/images/7/7f/Mr_Happy.jpg/revision/latest?cb=20140102171729"
+        }]
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "removes the comment and returns no content",
+    "queries": [],
+    "exampleResponse": {}
   }
 }
