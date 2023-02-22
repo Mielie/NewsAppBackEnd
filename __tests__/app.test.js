@@ -80,7 +80,30 @@ describe("/api/articles", () => {
 				});
 		});
 
-		it("should return articles sorted by date descending", () => {
+		it("should return articles filtered by topic", () => {
+			const topic = "cats";
+			return request(app)
+				.get(`/api/articles?topic=${topic}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toHaveLength(1);
+					expect(articles[0]).toHaveProperty("topic", topic);
+				});
+		});
+
+		it("should return an empty array when filtered by a valid topic where no articles have that topic", () => {
+			const topic = "paper";
+			return request(app)
+				.get(`/api/articles?topic=${topic}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toHaveLength(0);
+				});
+		});
+
+		it("should default return articles sorted by date descending", () => {
 			return request(app)
 				.get("/api/articles")
 				.expect(200)
@@ -89,6 +112,71 @@ describe("/api/articles", () => {
 					expect(articles).toBeSortedBy("created_at", {
 						descending: true,
 					});
+				});
+		});
+
+		it("should return articles sorted in ascending order when queried", () => {
+			return request(app)
+				.get("/api/articles/?order=asc")
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toBeSortedBy("created_at", {
+						descending: false,
+					});
+				});
+		});
+
+		it("should return articles sorted by queried column", () => {
+			return request(app)
+				.get("/api/articles?sort_by=comment_count&order=asc")
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toBeSortedBy("comment_count", {
+						descending: false,
+						coerce: true,
+					});
+				});
+		});
+
+		it("should ignore invalid query items", () => {
+			return request(app)
+				.get(`/api/articles?invalid_query=true`)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toBeInstanceOf(Array);
+				});
+		});
+	});
+	describe("GET 404", () => {
+		it("should return 404 when passed a topic that does not exist", () => {
+			const topic = "dogs";
+			return request(app)
+				.get(`/api/articles?topic=${topic}`)
+				.expect(404)
+				.then(({ body }) => {
+					const { msg } = body;
+					expect(msg).toBe("topic not found");
+				});
+		});
+	});
+	describe("GET 400", () => {
+		it("should return 400 when passed a column to sort by that does not exist", () => {
+			return request(app)
+				.get("/api/articles?sort_by=text")
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+		it("should return 400 when passed an order that is neither asc or desc", () => {
+			return request(app)
+				.get("/api/articles?order=text")
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
 				});
 		});
 	});
@@ -319,7 +407,7 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-  
+
 	describe("POST: 201", () => {
 		it("should respond with a 201 and the newly created comment object", () => {
 			const article_id = 1;

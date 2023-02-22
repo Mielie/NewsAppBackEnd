@@ -13,8 +13,11 @@ exports.sqlErrorHandler = (error, request, response, next) => {
 };
 
 exports.customErrorHandler = (error, request, response, next) => {
-	if (error === "article not found" || error === "user not found") {
+	let regEx = /not found$/i;
+	if (regEx.test(error)) {
 		response.status(404).send({ msg: error });
+	} else if (error === "invalid query") {
+		response.status(400).send({ msg: error });
 	} else {
 		next(error);
 	}
