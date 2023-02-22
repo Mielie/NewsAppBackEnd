@@ -7,6 +7,10 @@ exports.sqlErrorHandler = (error, request, response, next) => {
 		response.status(400).send({ msg: "invalid query" });
 	} else if (error.code === "23502") {
 		response.status(400).send({ msg: "missing parameter" });
+	} else if (error.code === "23503") {
+		const regEx = /(?<=Key \()\w*(?=\))/i;
+		const key = error.detail.match(regEx)[0];
+		response.status(404).send({ msg: `${key} not found` });
 	} else {
 		next(error);
 	}

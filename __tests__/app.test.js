@@ -478,7 +478,7 @@ describe("/api/articles/:article_id/comments", () => {
 				.send(new_comment)
 				.expect(404)
 				.then(({ body: { msg } }) => {
-					expect(msg).toBe("article not found");
+					expect(msg).toBe("article_id not found");
 				});
 		});
 		it("should return 404 if author (user) in comment does not exist", () => {
@@ -493,7 +493,7 @@ describe("/api/articles/:article_id/comments", () => {
 				.send(new_comment)
 				.expect(404)
 				.then(({ body: { msg } }) => {
-					expect(msg).toBe("user not found");
+					expect(msg).toBe("author not found");
 				});
 		});
 	});

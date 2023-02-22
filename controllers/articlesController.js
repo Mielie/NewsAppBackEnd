@@ -39,9 +39,7 @@ exports.putArticleComment = (request, response, next) => {
 	const { article_id } = request.params;
 	const newComment = request.body;
 
-	return fetchArticle(article_id)
-		.then(() => fetchUserById(newComment.author))
-		.then(() => newCommentForArticleWithId(article_id, newComment))
+	return newCommentForArticleWithId(article_id, newComment)
 		.then((comment) => {
 			response.status(201).send({ comment });
 		})
