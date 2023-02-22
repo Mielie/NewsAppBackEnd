@@ -74,7 +74,7 @@ describe("/api/articles", () => {
 						);
 						expect(article).toHaveProperty(
 							"comment_count",
-							expect.any(String)
+							expect.any(Number)
 						);
 					});
 				});
@@ -208,6 +208,20 @@ describe("/api/articles/:article_id", () => {
 						"article_img_url",
 						expect.any(String)
 					);
+					expect(article).toHaveProperty(
+						"comment_count",
+						expect.any(Number)
+					);
+				});
+		});
+		it("should return an article with the correct comment_count", () => {
+			const article_id = 1;
+			return request(app)
+				.get(`/api/articles/${article_id}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { article } = body;
+					expect(article).toHaveProperty("comment_count", 11);
 				});
 		});
 	});

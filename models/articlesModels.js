@@ -19,7 +19,7 @@ exports.fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
 
 	let queryString = `SELECT articles.author, articles.title, article_id,
 			articles.topic, articles.created_at, articles.votes, 
-			articles.article_img_url, COUNT(comments) AS comment_count
+			articles.article_img_url, COUNT(comments)::INT AS comment_count
 		FROM articles 
 		LEFT JOIN comments USING (article_id)`;
 
@@ -52,7 +52,16 @@ exports.fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
 
 exports.fetchArticle = (article_id) => {
 	return db
-		.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
+		.query(
+			`SELECT articles.author, articles.title, article_id,
+			articles.topic, articles.created_at, articles.votes, 
+			articles.article_img_url, articles.body, COUNT(comments)::INT AS comment_count
+		FROM articles 
+		LEFT JOIN comments USING (article_id)
+		WHERE article_id = $1
+		GROUP BY article_id;`,
+			[article_id]
+		)
 		.then(({ rows, rowCount }) => {
 			if (!rowCount) {
 				return Promise.reject("article not found");
