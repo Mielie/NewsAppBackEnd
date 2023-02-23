@@ -286,6 +286,22 @@ describe("/api/articles", () => {
 						expect(msg).toBe("missing parameter");
 					});
 			});
+			it("should return 400 if object if essential keys are null", () => {
+				const new_article = {
+					author: "icellusedkars",
+					title: "A new article",
+					body: null,
+					topic: "mitch",
+					article_img_url: "https://a.url.com",
+				};
+				return request(app)
+					.post("/api/articles")
+					.send(new_article)
+					.expect(400)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe("missing parameter");
+					});
+			});
 		});
 	});
 });
