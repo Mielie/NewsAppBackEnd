@@ -181,6 +181,41 @@ describe("/api/articles", () => {
 				});
 		});
 	});
+	describe("POST: 201", () => {
+		it("should return 201 and the newly created article", () => {
+			const new_article = {
+				author: "icellusedkars",
+				title: "A new article",
+				body: "This is an exciting new article!",
+				topic: "mitch",
+				article_img_url: "https://a.url.com",
+			};
+			return request(app)
+				.post("/api/articles")
+				.send(new_article)
+				.expect(201)
+				.then(({ body }) => {
+					const { article } = body;
+					expect(article).toHaveProperty("article_id", 13);
+					expect(article).toHaveProperty("title", new_article.title);
+					expect(article).toHaveProperty("topic", new_article.topic);
+					expect(article).toHaveProperty(
+						"author",
+						new_article.author
+					);
+					expect(article).toHaveProperty("body", new_article.body);
+					expect(article).toHaveProperty(
+						"created_at",
+						expect.any(String)
+					);
+					expect(article).toHaveProperty("votes", 0);
+					expect(article).toHaveProperty(
+						"article_img_url",
+						new_article.article_img_url
+					);
+				});
+		});
+	});
 });
 
 describe("/api/articles/:article_id", () => {
@@ -228,7 +263,7 @@ describe("/api/articles/:article_id", () => {
 	});
 	describe("GET: 404", () => {
 		it("should return 404 if article is not in DB", () => {
-			const article_id = 13;
+			const article_id = 100;
 			return request(app)
 				.get(`/api/articles/${article_id}`)
 				.expect(404)
@@ -279,7 +314,7 @@ describe("/api/articles/:article_id", () => {
 	});
 	describe("PATCH: 404", () => {
 		it("should return 404 when trying to patch an article that does not exist", () => {
-			const article_id = 13;
+			const article_id = 100;
 			const update = { inc_votes: -1 };
 			return request(app)
 				.patch(`/api/articles/${article_id}`)
@@ -401,7 +436,7 @@ describe("/api/articles/:article_id/comments", () => {
 
 	describe("GET: 404", () => {
 		it("should return 404 if article does not exist with article_id", () => {
-			const article_id = 13;
+			const article_id = 100;
 			return request(app)
 				.get(`/api/articles/${article_id}/comments`)
 				.expect(404)
@@ -482,7 +517,7 @@ describe("/api/articles/:article_id/comments", () => {
 
 	describe("POST: 404", () => {
 		it("should return 404 if article_id does not exist", () => {
-			const article_id = 13;
+			const article_id = 100;
 			const new_comment = {
 				body: "this is a new comment",
 				author: "lurker",
@@ -627,7 +662,7 @@ describe("/api/comments/:comment_id", () => {
 	});
 	describe("DELETE: 404", () => {
 		it("should return 404 if user passes a comment_id that is valid but does not exist", () => {
-			const comment_id = 21;
+			const comment_id = 200;
 			return request(app)
 				.delete(`/api/comments/${comment_id}`)
 				.expect(404)
