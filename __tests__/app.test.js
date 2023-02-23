@@ -636,6 +636,94 @@ describe("/api/comments/:comment_id", () => {
 				});
 		});
 	});
+	describe("PATCH: 200", () => {
+		it("should return 200 with the updated comment", () => {
+			const comment_id = 2;
+			const update = { inc_votes: -1 };
+			return request(app)
+				.patch(`/api/comments/${comment_id}`)
+				.send(update)
+				.expect(200)
+				.then(({ body }) => {
+					const { comment } = body;
+					expect(comment).toHaveProperty("votes", 13);
+				});
+		});
+		it("should ignore any additional keys passed", () => {
+			const comment_id = 2;
+			const update = { inc_votes: -1, extra_parameter: "not included" };
+			return request(app)
+				.patch(`/api/comments/${comment_id}`)
+				.send(update)
+				.expect(200)
+				.then(({ body }) => {
+					const { comment } = body;
+					expect(comment).not.toHaveProperty(
+						"extra_parameter",
+						"not included"
+					);
+				});
+		});
+	});
+	describe("PATCH: 404", () => {
+		it("should return 404 when trying to patch a comment that does not exist", () => {
+			const comment_id = 21;
+			const update = { inc_votes: -1 };
+			return request(app)
+				.patch(`/api/comments/${comment_id}`)
+				.send(update)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("comment not found");
+				});
+		});
+	});
+	describe("PATCH: 400", () => {
+		it("should return 400 when trying to patch with a comment_id that is not a number", () => {
+			const comment_id = "invalid comment_id";
+			const update = { inc_votes: -1 };
+			return request(app)
+				.patch(`/api/comments/${comment_id}`)
+				.send(update)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+		it("should return 400 if user does not pass an object with a inc_votes key", () => {
+			const comment_id = 2;
+			const update = { add_votes: -1 };
+			return request(app)
+				.patch(`/api/comments/${comment_id}`)
+				.send(update)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+		it("should return 400 if user does not pass an object", () => {
+			const comment_id = 2;
+			const update = "invalid query parameter";
+			return request(app)
+				.patch(`/api/comments/${comment_id}`)
+				.send(update)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+		it("should return 400 if user passes an object with a value for the inc_votes key that is not a number", () => {
+			const comment_id = 2;
+			const update = { add_votes: "one" };
+			return request(app)
+				.patch(`/api/comments/${comment_id}`)
+				.send(update)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+	});
 });
 
 describe("/api", () => {
