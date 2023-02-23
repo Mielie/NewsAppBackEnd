@@ -571,6 +571,37 @@ describe("/api/users", () => {
 	});
 });
 
+describe("/api/users/:username", () => {
+	describe("GET: 200", () => {
+		it("should return 200 and a user object when queried with an existing username", () => {
+			const username = "rogersop";
+			return request(app)
+				.get(`/api/users/${username}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { user } = body;
+					expect(user).toHaveProperty("username", "rogersop");
+					expect(user).toHaveProperty("name", "paul");
+					expect(user).toHaveProperty(
+						"avatar_url",
+						"https://avatars2.githubusercontent.com/u/24394918?s=400&v=4"
+					);
+				});
+		});
+	});
+	describe("GET: 404", () => {
+		it("should return 404 when queried with a username that does not exist", () => {
+			const username = "invalid_username";
+			return request(app)
+				.get(`/api/users/${username}`)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("user not found");
+				});
+		});
+	});
+});
+
 describe("/api/comments/:comment_id", () => {
 	describe("DELETE: 204", () => {
 		it("should return 204 and no content when passed a valid comment_id", () => {

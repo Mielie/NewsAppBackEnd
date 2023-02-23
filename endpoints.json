@@ -119,6 +119,17 @@
       ]
     }
   },
+  "GET /api/users/:username": {
+    "description": "serves up a single user when provided the username",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "username": "newuser",
+        "name": "New User",
+        "avatar_url": "https://path.to.avatar"
+      }
+    }
+  },
   "DELETE /api/comments/:comment_id": {
     "description": "removes the comment and returns no content",
     "queries": [],

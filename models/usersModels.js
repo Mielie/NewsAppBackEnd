@@ -8,10 +8,10 @@ exports.fetchUsers = () => {
 		)
 		.then(({ rows }) => {
 			return rows;
-    });
-};   
+		});
+};
 
-exports.fetchUserById = (user_id) => {
+exports.fetchUserByUsername = (user_id) => {
 	return db
 		.query(`SELECT * FROM users WHERE username = $1;`, [user_id])
 		.then(({ rows, rowCount }) => {
