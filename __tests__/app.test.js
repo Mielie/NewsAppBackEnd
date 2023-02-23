@@ -215,6 +215,78 @@ describe("/api/articles", () => {
 					);
 				});
 		});
+		it("should return 201 and ignore superfluous keys", () => {
+			const new_article = {
+				author: "icellusedkars",
+				title: "Another new article",
+				body: "This is another exciting new article!",
+				unnecessary: "this key is not superfluous",
+				topic: "mitch",
+				article_img_url: "https://a.url.com",
+			};
+			return request(app)
+				.post("/api/articles")
+				.send(new_article)
+				.expect(201)
+				.then(({ body }) => {
+					const { article } = body;
+					expect(article).not.toHaveProperty(
+						"unnecessary",
+						"this key is not superfluous"
+					);
+				});
+		});
+	});
+	describe("POST: 404", () => {
+		it("should return 404 if author does not exist", () => {
+			const new_article = {
+				author: "author does not exist",
+				title: "A new article",
+				body: "This is an exciting new article!",
+				topic: "mitch",
+				article_img_url: "https://a.url.com",
+			};
+			return request(app)
+				.post("/api/articles")
+				.send(new_article)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("author not found");
+				});
+		});
+		it("should return 404 if topic does not exist", () => {
+			const new_article = {
+				author: "icellusedkars",
+				title: "A new article",
+				body: "This is an exciting new article!",
+				topic: "dogs",
+				article_img_url: "https://a.url.com",
+			};
+			return request(app)
+				.post("/api/articles")
+				.send(new_article)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("topic not found");
+				});
+		});
+		describe("POST: 400", () => {
+			it("should return 400 if object is missing essential keys", () => {
+				const new_article = {
+					author: "icellusedkars",
+					title: "A new article",
+					topic: "mitch",
+					article_img_url: "https://a.url.com",
+				};
+				return request(app)
+					.post("/api/articles")
+					.send(new_article)
+					.expect(400)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe("missing parameter");
+					});
+			});
+		});
 	});
 });
 
@@ -433,7 +505,6 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("GET: 404", () => {
 		it("should return 404 if article does not exist with article_id", () => {
 			const article_id = 100;
@@ -445,7 +516,6 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("GET: 400", () => {
 		it("should return 400 if article id is not a number", () => {
 			const article_id = "invalid_id";
@@ -457,7 +527,6 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("POST: 201", () => {
 		it("should respond with a 201 and the newly created comment object", () => {
 			const article_id = 1;
@@ -514,7 +583,6 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("POST: 404", () => {
 		it("should return 404 if article_id does not exist", () => {
 			const article_id = 100;
@@ -547,7 +615,6 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("POST: 400", () => {
 		it("should return 400 if article_id is not a number", () => {
 			const article_id = "invalid_id";
