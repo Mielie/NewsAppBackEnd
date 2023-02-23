@@ -181,6 +181,113 @@ describe("/api/articles", () => {
 				});
 		});
 	});
+	describe("POST: 201", () => {
+		it("should return 201 and the newly created article", () => {
+			const new_article = {
+				author: "icellusedkars",
+				title: "A new article",
+				body: "This is an exciting new article!",
+				topic: "mitch",
+				article_img_url: "https://a.url.com",
+			};
+			return request(app)
+				.post("/api/articles")
+				.send(new_article)
+				.expect(201)
+				.then(({ body }) => {
+					const { article } = body;
+					expect(article).toHaveProperty("article_id", 13);
+					expect(article).toHaveProperty("title", new_article.title);
+					expect(article).toHaveProperty("topic", new_article.topic);
+					expect(article).toHaveProperty(
+						"author",
+						new_article.author
+					);
+					expect(article).toHaveProperty("body", new_article.body);
+					expect(article).toHaveProperty(
+						"created_at",
+						expect.any(String)
+					);
+					expect(article).toHaveProperty("votes", 0);
+					expect(article).toHaveProperty(
+						"article_img_url",
+						new_article.article_img_url
+					);
+				});
+		});
+		it("should return 201 and ignore superfluous keys", () => {
+			const new_article = {
+				author: "icellusedkars",
+				title: "Another new article",
+				body: "This is another exciting new article!",
+				unnecessary: "this key is not superfluous",
+				topic: "mitch",
+				article_img_url: "https://a.url.com",
+			};
+			return request(app)
+				.post("/api/articles")
+				.send(new_article)
+				.expect(201)
+				.then(({ body }) => {
+					const { article } = body;
+					expect(article).not.toHaveProperty(
+						"unnecessary",
+						"this key is not superfluous"
+					);
+				});
+		});
+	});
+	describe("POST: 404", () => {
+		it("should return 404 if author does not exist", () => {
+			const new_article = {
+				author: "author does not exist",
+				title: "A new article",
+				body: "This is an exciting new article!",
+				topic: "mitch",
+				article_img_url: "https://a.url.com",
+			};
+			return request(app)
+				.post("/api/articles")
+				.send(new_article)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("author not found");
+				});
+		});
+		it("should return 404 if topic does not exist", () => {
+			const new_article = {
+				author: "icellusedkars",
+				title: "A new article",
+				body: "This is an exciting new article!",
+				topic: "dogs",
+				article_img_url: "https://a.url.com",
+			};
+			return request(app)
+				.post("/api/articles")
+				.send(new_article)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("topic not found");
+				});
+		});
+		describe("POST: 400", () => {
+			it("should return 400 if object is missing essential keys", () => {
+				const new_article = {
+					author: "icellusedkars",
+					title: "A new article",
+					topic: "mitch",
+					article_img_url: "https://a.url.com",
+				};
+				return request(app)
+					.post("/api/articles")
+					.send(new_article)
+					.expect(400)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe("missing parameter");
+					});
+			});
+		});
+	});
 });
 
 describe("/api/articles/:article_id", () => {
@@ -228,7 +335,7 @@ describe("/api/articles/:article_id", () => {
 	});
 	describe("GET: 404", () => {
 		it("should return 404 if article is not in DB", () => {
-			const article_id = 13;
+			const article_id = 100;
 			return request(app)
 				.get(`/api/articles/${article_id}`)
 				.expect(404)
@@ -279,7 +386,7 @@ describe("/api/articles/:article_id", () => {
 	});
 	describe("PATCH: 404", () => {
 		it("should return 404 when trying to patch an article that does not exist", () => {
-			const article_id = 13;
+			const article_id = 100;
 			const update = { inc_votes: -1 };
 			return request(app)
 				.patch(`/api/articles/${article_id}`)
@@ -398,10 +505,9 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("GET: 404", () => {
 		it("should return 404 if article does not exist with article_id", () => {
-			const article_id = 13;
+			const article_id = 100;
 			return request(app)
 				.get(`/api/articles/${article_id}/comments`)
 				.expect(404)
@@ -410,7 +516,6 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("GET: 400", () => {
 		it("should return 400 if article id is not a number", () => {
 			const article_id = "invalid_id";
@@ -422,7 +527,6 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("POST: 201", () => {
 		it("should respond with a 201 and the newly created comment object", () => {
 			const article_id = 1;
@@ -479,10 +583,9 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("POST: 404", () => {
 		it("should return 404 if article_id does not exist", () => {
-			const article_id = 13;
+			const article_id = 100;
 			const new_comment = {
 				body: "this is a new comment",
 				author: "lurker",
@@ -512,7 +615,6 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 	});
-
 	describe("POST: 400", () => {
 		it("should return 400 if article_id is not a number", () => {
 			const article_id = "invalid_id";
@@ -627,7 +729,7 @@ describe("/api/comments/:comment_id", () => {
 	});
 	describe("DELETE: 404", () => {
 		it("should return 404 if user passes a comment_id that is valid but does not exist", () => {
-			const comment_id = 21;
+			const comment_id = 200;
 			return request(app)
 				.delete(`/api/comments/${comment_id}`)
 				.expect(404)

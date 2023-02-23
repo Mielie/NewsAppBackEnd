@@ -127,3 +127,26 @@ exports.checkTopic = (topic) => {
 			return true;
 		});
 };
+
+exports.postArticle = (newArticle) => {
+	const article = [
+		newArticle.author,
+		newArticle.title,
+		newArticle.body,
+		newArticle.topic,
+		newArticle.article_img_url,
+	];
+
+	return db
+		.query(
+			`INSERT INTO articles
+		(author, title, body, topic, article_img_url, votes)
+		VALUES
+		($1,$2,$3,$4,$5,0)
+		RETURNING *;`,
+			article
+		)
+		.then(({ rows }) => {
+			return rows[0];
+		});
+};

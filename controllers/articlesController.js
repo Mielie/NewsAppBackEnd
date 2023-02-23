@@ -5,6 +5,7 @@ const {
 	fetchArticleComments,
 	selectArticleById,
 	patchArticle,
+	postArticle,
 	checkTopic,
 } = require("../models/articlesModels");
 const { fetchUserById } = require("../models/usersModels");
@@ -65,6 +66,15 @@ exports.updateArticleVotes = (request, response, next) => {
 		.then((newVotes) => patchArticle(article_id, newVotes))
 		.then((article) => {
 			return response.status(200).send({ article });
+		})
+		.catch(next);
+};
+
+exports.putArticle = (request, response, next) => {
+	const article = request.body;
+	return postArticle(article)
+		.then((article) => {
+			response.status(201).send({ article });
 		})
 		.catch(next);
 };
