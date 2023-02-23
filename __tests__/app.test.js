@@ -3,6 +3,7 @@ const request = require("supertest");
 const testData = require("../db/data/test-data/");
 const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
+const endpointsJson = require("../endpoints.json");
 
 beforeAll(() => seed(testData));
 
@@ -601,6 +602,20 @@ describe("/api/comments/:comment_id", () => {
 				.expect(404)
 				.then(({ body: { msg } }) => {
 					expect(msg).toBe("comment not found");
+				});
+		});
+	});
+});
+
+describe("/api", () => {
+	describe("GET: 200", () => {
+		it("should return the endpoints.json with a code of 200", () => {
+			return request(app)
+				.get("/api")
+				.expect(200)
+				.then(({ body }) => {
+					const { endpoints } = body;
+					expect(endpoints).toEqual(endpointsJson);
 				});
 		});
 	});

@@ -10,6 +10,7 @@ const {
 const { getTopics } = require("./controllers/topicsController");
 const { getUsers } = require("./controllers/usersController");
 const { deleteComment } = require("./controllers/commentsController");
+const { getApiEndpoints } = require("./controllers/apiController");
 
 const {
     sqlErrorHandler,
@@ -21,6 +22,8 @@ const {
 const app = express();
 
 app.use(express.json());
+
+app.get("/api", getApiEndpoints);
 
 app.get("/api/articles", getArticles);
 
