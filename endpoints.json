@@ -66,6 +66,11 @@
       }
     }
   },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes the article referenced by article_id",
+    "queries": [],
+    "exampleResponse": {}
+  },
   "PATCH /api/articles/:article_id": {
     "description": "updates the article vote count when passed an object with a key of inc_votes that contains a number to increase the votes by",
     "queries": [],
