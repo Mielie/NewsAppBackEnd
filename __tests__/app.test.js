@@ -43,7 +43,6 @@ describe("/api/articles", () => {
 				.then(({ body }) => {
 					const { articles } = body;
 					expect(articles).toBeInstanceOf(Array);
-					expect(articles).toHaveLength(12);
 					articles.forEach((article) => {
 						expect(article).toHaveProperty(
 							"author",
@@ -90,6 +89,38 @@ describe("/api/articles", () => {
 					const { articles } = body;
 					expect(articles).toHaveLength(1);
 					expect(articles[0]).toHaveProperty("topic", topic);
+				});
+		});
+
+		it("should return an JSON object with a key of total_count that is the total number of articles matching any queries", () => {
+			const limit = 5;
+			return request(app)
+				.get(`/api/articles?limit=${limit}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { total_count } = body;
+					expect(total_count).toBe(12);
+				});
+		});
+
+		it("should default to a limit of 10 articles", () => {
+			return request(app)
+				.get(`/api/articles`)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toHaveLength(10);
+				});
+		});
+
+		it("should accept a query limit and return the correct number of articles", () => {
+			const limit = 5;
+			return request(app)
+				.get(`/api/articles?limit=${limit}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toHaveLength(5);
 				});
 		});
 
@@ -150,6 +181,43 @@ describe("/api/articles", () => {
 					expect(articles).toBeInstanceOf(Array);
 				});
 		});
+
+		it("should start at the first page by default", () => {
+			return request(app)
+				.get(`/api/articles?sort_by=article_id&order=asc`)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles[0].article_id).toBe(1);
+				});
+		});
+
+		it("should start at the correct point when a page number is provided", () => {
+			const page = 1;
+			return request(app)
+				.get(
+					`/api/articles?sort_by=article_id&order=asc&limit=4&p=${page}`
+				)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles[0].article_id).toBe(5);
+				});
+		});
+
+		it("should return an empty array when page is too high", () => {
+			const page = 3;
+			return request(app)
+				.get(
+					`/api/articles?sort_by=article_id&order=asc&limit=4&p=${page}`
+				)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles, total_count } = body;
+					expect(articles).toHaveLength(0);
+					expect(total_count).toBe(12);
+				});
+		});
 	});
 	describe("GET 404", () => {
 		it("should return 404 when passed a topic that does not exist", () => {
@@ -175,6 +243,24 @@ describe("/api/articles", () => {
 		it("should return 400 when passed an order that is neither asc or desc", () => {
 			return request(app)
 				.get("/api/articles?order=text")
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+		it("should return 400 when passed a limit that is not a number", () => {
+			const limit = "hello";
+			return request(app)
+				.get(`/api/articles?limit=${limit}`)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+		it("should return 400 when passed a page that is not a number", () => {
+			const page = "hello";
+			return request(app)
+				.get(`/api/articles?p=${page}`)
 				.expect(400)
 				.then(({ body: { msg } }) => {
 					expect(msg).toBe("invalid query");
