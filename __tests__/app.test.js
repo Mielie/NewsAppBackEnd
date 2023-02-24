@@ -624,6 +624,36 @@ describe("/api/articles/:article_id", () => {
 				});
 		});
 	});
+	describe("DELETE: 204", () => {
+		it("should delete the article and return 204", () => {
+			const article_id = 12;
+			return request(app)
+				.delete(`/api/articles/${article_id}`)
+				.expect(204);
+		});
+	});
+	describe("DELETE: 404", () => {
+		it("should return 404 if an attempt is made to delete an article that does not exist", () => {
+			const article_id = 100;
+			return request(app)
+				.delete(`/api/articles/${article_id}`)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("article not found");
+				});
+		});
+	});
+	describe("DELETE: 400", () => {
+		it("should return 400 if article_id is not a number", () => {
+			const article_id = "Not a number";
+			return request(app)
+				.delete(`/api/articles/${article_id}`)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+	});
 });
 
 describe("/api/articles/:article_id/comments", () => {

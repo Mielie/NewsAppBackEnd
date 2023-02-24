@@ -180,3 +180,14 @@ exports.countArticles = (topic) => {
 		return Number(rows[0].count);
 	});
 };
+
+exports.removeArticle = (article_id) => {
+	return db
+		.query(`DELETE FROM articles WHERE article_id = $1`, [article_id])
+		.then(({ rowCount }) => {
+			if (!rowCount) {
+				return Promise.reject("article not found");
+			}
+			return;
+		});
+};

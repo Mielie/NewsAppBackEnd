@@ -8,6 +8,7 @@ const {
 	postArticle,
 	checkTopic,
 	countArticles,
+	removeArticle,
 } = require("../models/articlesModels");
 const { fetchUserById } = require("../models/usersModels");
 
@@ -78,6 +79,15 @@ exports.putArticle = (request, response, next) => {
 	return postArticle(article)
 		.then((article) => {
 			response.status(201).send({ article });
+		})
+		.catch(next);
+};
+
+exports.deleteArticle = (request, response, next) => {
+	const { article_id } = request.params;
+	return removeArticle(article_id)
+		.then(() => {
+			response.status(204).send();
 		})
 		.catch(next);
 };
