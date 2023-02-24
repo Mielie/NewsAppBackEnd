@@ -10,7 +10,7 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all topics, results can be limited and paginated by query",
     "queries": ["topic", "sort_by", "order", "p", "limit"],
     "exampleResponse": {
       "articles": [
@@ -77,8 +77,8 @@
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "serves up an array of comments for the provided article",
-    "queries": [],
+    "description": "serves up an array of comments for the provided article, results can be limited and paginated by query",
+    "queries": ["limit", "p"],
     "exampleResponse": {
       "comments": [
         {
