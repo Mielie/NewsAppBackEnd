@@ -10,17 +10,21 @@ const {
 	countArticles,
 	removeArticle,
 } = require("../models/articlesModels");
-const { fetchUserById } = require("../models/usersModels");
+const { fetchUserByUsername } = require("../models/usersModels");
 
 exports.getArticles = (request, response, next) => {
-	const { topic, sort_by, order, limit, p } = request.query;
+	const { topic, author, sort_by, order, limit, p } = request.query;
 
 	const promises = [];
-	promises.push(countArticles(topic));
-	promises.push(fetchArticles(topic, sort_by, order, limit, p));
+	promises.push(countArticles(topic, author));
+	promises.push(fetchArticles(topic, author, sort_by, order, limit, p));
 
 	if (topic) {
 		promises.push(checkTopic(topic));
+	}
+
+	if (author) {
+		promises.push(fetchUserByUsername(author, "author"));
 	}
 
 	return Promise.all(promises)
