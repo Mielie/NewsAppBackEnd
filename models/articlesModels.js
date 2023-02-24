@@ -158,15 +158,20 @@ exports.postArticle = (newArticle) => {
 		newArticle.title,
 		newArticle.body,
 		newArticle.topic,
-		newArticle.article_img_url,
 	];
+
+	if (newArticle.article_img_url) {
+		article.push(newArticle.article_img_url);
+	}
 
 	return db
 		.query(
 			`INSERT INTO articles
-		(author, title, body, topic, article_img_url, votes)
+		(author, title, body, topic, ${
+			newArticle.article_img_url ? "article_img_url, " : ""
+		}votes)
 		VALUES
-		($1,$2,$3,$4,$5,0)
+		($1,$2,$3,$4,${newArticle.article_img_url ? "$5," : ""}0)
 		RETURNING *;`,
 			article
 		)

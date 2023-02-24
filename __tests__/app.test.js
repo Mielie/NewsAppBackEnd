@@ -436,7 +436,7 @@ describe("/api/articles", () => {
 				author: "icellusedkars",
 				title: "Another new article",
 				body: "This is another exciting new article!",
-				unnecessary: "this key is not superfluous",
+				unnecessary: "this key is superfluous",
 				topic: "mitch",
 				article_img_url: "https://a.url.com",
 			};
@@ -448,7 +448,26 @@ describe("/api/articles", () => {
 					const { article } = body;
 					expect(article).not.toHaveProperty(
 						"unnecessary",
-						"this key is not superfluous"
+						"this key is superfluous"
+					);
+				});
+		});
+		it("should return 201 and set the default article_img_url when one is not provided", () => {
+			const new_article = {
+				author: "icellusedkars",
+				title: "Yet another new and exciting article",
+				body: "This is another exciting new article!",
+				topic: "mitch",
+			};
+			return request(app)
+				.post("/api/articles")
+				.send(new_article)
+				.expect(201)
+				.then(({ body }) => {
+					const { article } = body;
+					expect(article).toHaveProperty(
+						"article_img_url",
+						"https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
 					);
 				});
 		});
