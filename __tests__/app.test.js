@@ -171,6 +171,36 @@ describe("/api/articles", () => {
 				});
 		});
 
+		it("should return articles filtered by author", () => {
+			const author = "icellusedkars";
+			return request(app)
+				.get(`/api/articles?author=${author}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toHaveLength(6);
+					articles.forEach((article) => {
+						expect(article).toHaveProperty("author", author);
+					});
+				});
+		});
+
+		it("should return articles filtered by author and topic", () => {
+			const author = "rogersop";
+			const topic = "mitch";
+			return request(app)
+				.get(`/api/articles?author=${author}&topic=${topic}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toHaveLength(2);
+					articles.forEach((article) => {
+						expect(article).toHaveProperty("author", author);
+						expect(article).toHaveProperty("topic", topic);
+					});
+				});
+		});
+
 		it("should return an JSON object with a key of total_count that is the total number of articles matching any queries", () => {
 			const limit = 5;
 			return request(app)
@@ -207,6 +237,17 @@ describe("/api/articles", () => {
 			const topic = "paper";
 			return request(app)
 				.get(`/api/articles?topic=${topic}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { articles } = body;
+					expect(articles).toHaveLength(0);
+				});
+		});
+
+		it("should return an empty array when filtered by a valid author where no articles have that author", () => {
+			const author = "lurker";
+			return request(app)
+				.get(`/api/articles?author=${author}`)
 				.expect(200)
 				.then(({ body }) => {
 					const { articles } = body;
@@ -307,6 +348,16 @@ describe("/api/articles", () => {
 				.then(({ body }) => {
 					const { msg } = body;
 					expect(msg).toBe("topic not found");
+				});
+		});
+		it("should return 404 when passed an author that does not exist", () => {
+			const author = "dogs";
+			return request(app)
+				.get(`/api/articles?author=${author}`)
+				.expect(404)
+				.then(({ body }) => {
+					const { msg } = body;
+					expect(msg).toBe("author not found");
 				});
 		});
 	});

@@ -2,6 +2,7 @@ const db = require("../db/connection");
 
 exports.fetchArticles = (
 	topic,
+	author,
 	sort_by = "created_at",
 	order = "desc",
 	limit = "10",
@@ -31,9 +32,15 @@ exports.fetchArticles = (
 
 	const queryParams = [];
 
-	if (topic) {
-		queryString += ` WHERE topic = $1`;
+	if (topic && author) {
+		queryString += " WHERE articles.topic = $1 AND articles.author = $2";
+		queryParams.push(topic, author);
+	} else if (topic) {
+		queryString += ` WHERE articles.topic = $1`;
 		queryParams.push(topic);
+	} else if (author) {
+		queryString += ` WHERE articles.author = $1`;
+		queryParams.push(author);
 	}
 
 	queryString += ` GROUP BY articles.article_id
@@ -57,6 +64,7 @@ exports.fetchArticles = (
 	} else {
 		queryString += ` LIMIT ${limit} OFFSET ${p * limit};`;
 	}
+
 	return db.query(queryString, queryParams).then(({ rows }) => {
 		return rows;
 	});
@@ -167,13 +175,19 @@ exports.postArticle = (newArticle) => {
 		});
 };
 
-exports.countArticles = (topic) => {
+exports.countArticles = (topic, author) => {
 	let queryString = `SELECT COUNT(*) FROM articles`;
 	const queryParam = [];
 
-	if (topic) {
-		queryString += " WHERE topic = $1;";
+	if (topic && author) {
+		queryString += " WHERE topic = $1 AND author = $2";
+		queryParam.push(topic, author);
+	} else if (topic) {
+		queryString += ` WHERE topic = $1`;
 		queryParam.push(topic);
+	} else if (author) {
+		queryString += ` WHERE author = $1`;
+		queryParam.push(author);
 	}
 
 	return db.query(queryString, queryParam).then(({ rows }) => {
