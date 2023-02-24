@@ -9,6 +9,13 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "POST /api/topics": {
+    "description": "posts a new topic",
+    "queries": [],
+    "exampleResponse": {
+      "topic": { "slug": "new Topic", "description": "new topic description" }
+    }
+  },
   "GET /api/articles": {
     "description": "serves an array of all topics, results can be limited and paginated by query",
     "queries": ["topic", "sort_by", "order", "p", "limit"],

@@ -32,6 +32,85 @@ describe("/api/topics", () => {
 				});
 		});
 	});
+	describe("POST: 201", () => {
+		it("should return the newly created topic", () => {
+			const new_topic = {
+				slug: "newTopic",
+				description: "This is a new topic",
+			};
+			return request(app)
+				.post("/api/topics")
+				.send(new_topic)
+				.expect(201)
+				.then(({ body }) => {
+					const { topic } = body;
+					expect(topic).toHaveProperty("slug", new_topic.slug);
+					expect(topic).toHaveProperty(
+						"description",
+						new_topic.description
+					);
+				});
+		});
+		it("should ignore any superfluous keys", () => {
+			const new_topic = {
+				slug: "anotherNewTopic",
+				description: "This is another new topic",
+				unnecessary: "This key/value is superfluous",
+			};
+			return request(app)
+				.post("/api/topics")
+				.send(new_topic)
+				.expect(201)
+				.then(({ body }) => {
+					const { topic } = body;
+					expect(topic).not.toHaveProperty(
+						"unnecessary",
+						new_topic.unnecessary
+					);
+				});
+		});
+		it("should still create the topic even if no description is provided", () => {
+			const new_topic = {
+				slug: "yetAnotherNewTopic",
+			};
+			return request(app)
+				.post("/api/topics")
+				.send(new_topic)
+				.expect(201)
+				.then(({ body }) => {
+					const { topic } = body;
+					expect(topic).toHaveProperty("slug", new_topic.slug);
+					expect(topic).toHaveProperty("description", null);
+				});
+		});
+	});
+	describe("POST: 400", () => {
+		it("should return 400 if topic slug is already in use", () => {
+			const new_topic = {
+				slug: "newTopic",
+				description: "This is a new topic",
+			};
+			return request(app)
+				.post("/api/topics")
+				.send(new_topic)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("entry already exists");
+				});
+		});
+		it("should return 400 if no slug is provided", () => {
+			const new_topic = {
+				description: "This is a new topic",
+			};
+			return request(app)
+				.post("/api/topics")
+				.send(new_topic)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("missing parameter");
+				});
+		});
+	});
 });
 
 describe("/api/articles", () => {
