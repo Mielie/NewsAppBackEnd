@@ -1,6 +1,12 @@
 const db = require("../db/connection");
 
-exports.fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
+exports.fetchArticles = (
+	topic,
+	sort_by = "created_at",
+	order = "desc",
+	limit = "10",
+	p = "0"
+) => {
 	const validSortBy = {
 		author: true,
 		title: true,
@@ -40,11 +46,17 @@ exports.fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
 	}
 
 	if (validOrder[order]) {
-		queryString += `${order};`;
+		queryString += `${order}`;
 	} else {
 		return Promise.reject("invalid query");
 	}
 
+	const notANumber = /[^\0-9]/;
+	if (limit.match(notANumber) || p.match(notANumber)) {
+		return Promise.reject("invalid query");
+	} else {
+		queryString += ` LIMIT ${limit} OFFSET ${p * limit};`;
+	}
 	return db.query(queryString, queryParams).then(({ rows }) => {
 		return rows;
 	});
@@ -149,4 +161,18 @@ exports.postArticle = (newArticle) => {
 		.then(({ rows }) => {
 			return rows[0];
 		});
+};
+
+exports.countArticles = (topic) => {
+	let queryString = `SELECT COUNT(*) FROM articles`;
+	const queryParam = [];
+
+	if (topic) {
+		queryString += " WHERE topic = $1;";
+		queryParam.push(topic);
+	}
+
+	return db.query(queryString, queryParam).then(({ rows }) => {
+		return Number(rows[0].count);
+	});
 };

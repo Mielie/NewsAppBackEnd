@@ -7,22 +7,24 @@ const {
 	patchArticle,
 	postArticle,
 	checkTopic,
+	countArticles,
 } = require("../models/articlesModels");
 const { fetchUserById } = require("../models/usersModels");
 
 exports.getArticles = (request, response, next) => {
-	const { topic, sort_by, order } = request.query;
+	const { topic, sort_by, order, limit, p } = request.query;
 
 	const promises = [];
-	promises.push(fetchArticles(topic, sort_by, order));
+	promises.push(countArticles(topic));
+	promises.push(fetchArticles(topic, sort_by, order, limit, p));
 
 	if (topic) {
 		promises.push(checkTopic(topic));
 	}
 
 	return Promise.all(promises)
-		.then(([articles]) => {
-			response.status(200).send({ articles });
+		.then(([total_count, articles]) => {
+			response.status(200).send({ total_count, articles });
 		})
 		.catch(next);
 };
