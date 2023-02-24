@@ -104,15 +104,19 @@ exports.newCommentForArticleWithId = (article_id, newComment) => {
 		});
 };
 
-exports.fetchArticleComments = (article_id) => {
-	return db
-		.query(
-			`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`,
-			[article_id]
-		)
-		.then(({ rows, rowCount }) => {
-			return rows;
-		});
+exports.fetchArticleComments = (article_id, limit = "10", p = "0") => {
+	let queryString = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`;
+
+	const notANumber = /[^\0-9]/;
+	if (limit.match(notANumber) || p.match(notANumber)) {
+		return Promise.reject("invalid query");
+	} else {
+		queryString += ` LIMIT ${limit} OFFSET ${limit * p};`;
+	}
+
+	return db.query(queryString, [article_id]).then(({ rows, rowCount }) => {
+		return rows;
+	});
 };
 
 exports.patchArticle = (article_id, newVotes) => {

@@ -51,8 +51,9 @@ exports.putArticleComment = (request, response, next) => {
 
 exports.getArticleComments = (request, response, next) => {
 	const { article_id } = request.params;
+	const { limit, p } = request.query;
 	const checkArticlePromise = fetchArticle(article_id);
-	const fetchCommentsPromise = fetchArticleComments(article_id);
+	const fetchCommentsPromise = fetchArticleComments(article_id, limit, p);
 	return Promise.all([fetchCommentsPromise, checkArticlePromise])
 		.then(([comments]) => {
 			response.status(200).send({ comments });

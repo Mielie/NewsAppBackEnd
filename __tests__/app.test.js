@@ -556,7 +556,7 @@ describe("/api/articles/:article_id/comments", () => {
 				.expect(200)
 				.then(({ body }) => {
 					const { comments } = body;
-					expect(comments).toHaveLength(11);
+					expect(comments).toHaveLength(10);
 					comments.forEach((comment) => {
 						expect(comment).toHaveProperty(
 							"comment_id",
@@ -597,6 +597,65 @@ describe("/api/articles/:article_id/comments", () => {
 					});
 				});
 		});
+		it("should default to returning 10 comments", () => {
+			const article_id = 1;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(200)
+				.then(({ body }) => {
+					const { comments } = body;
+					expect(comments).toHaveLength(10);
+				});
+		});
+		it("should accept a limit query and return the correct number of comments", () => {
+			const article_id = 1;
+			const limit = 4;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments?limit=${limit}`)
+				.expect(200)
+				.then(({ body }) => {
+					const { comments } = body;
+					expect(comments).toHaveLength(limit);
+				});
+		});
+		it("should default to returning the first page", () => {
+			const article_id = 1;
+			return request(app)
+				.get(`/api/articles/${article_id}/comments`)
+				.expect(200)
+				.then(({ body }) => {
+					const { comments } = body;
+					expect(comments[0].comment_id).toBe(5);
+				});
+		});
+		it("should return the correct page when a page query is passed", () => {
+			const article_id = 1;
+			const limit = 4;
+			const page = 1;
+			return request(app)
+				.get(
+					`/api/articles/${article_id}/comments?limit=${limit}&p=${page}`
+				)
+				.expect(200)
+				.then(({ body }) => {
+					const { comments } = body;
+					expect(comments[0].comment_id).toBe(7);
+				});
+		});
+		it("should return an empty array when page is too high", () => {
+			const article_id = 1;
+			const limit = 4;
+			const page = 4;
+			return request(app)
+				.get(
+					`/api/articles/${article_id}/comments?limit=${limit}&p=${page}`
+				)
+				.expect(200)
+				.then(({ body }) => {
+					const { comments } = body;
+					expect(comments).toHaveLength(0);
+				});
+		});
 		it("should return 200 if article exists but has no comments", () => {
 			const article_id = 2;
 			return request(app)
@@ -623,6 +682,26 @@ describe("/api/articles/:article_id/comments", () => {
 			const article_id = "invalid_id";
 			return request(app)
 				.get(`/api/articles/${article_id}/comments`)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+		it("should return 400 if limit query is not a number", () => {
+			const article_id = 1;
+			const limit = "hello";
+			return request(app)
+				.get(`/api/articles/${article_id}/comments?limit=${limit}`)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe("invalid query");
+				});
+		});
+		it("should return 400 if page query is not a number", () => {
+			const article_id = 1;
+			const page = "hello";
+			return request(app)
+				.get(`/api/articles/${article_id}/comments?p=${page}`)
 				.expect(400)
 				.then(({ body: { msg } }) => {
 					expect(msg).toBe("invalid query");
