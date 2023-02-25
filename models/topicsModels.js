@@ -21,3 +21,14 @@ exports.postTopic = (new_topic) => {
 			return rows[0];
 		});
 };
+
+exports.checkTopic = (topic) => {
+	return db
+		.query(`SELECT * FROM topics WHERE slug = $1;`, [topic])
+		.then(({ rowCount }) => {
+			if (!rowCount) {
+				return Promise.reject("topic not found");
+			}
+			return true;
+		});
+};

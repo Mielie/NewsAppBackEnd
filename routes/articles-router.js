@@ -3,12 +3,14 @@ const articlesRouter = require("express").Router();
 const {
 	getArticles,
 	getArticleById,
-	putArticleComment,
 	putArticle,
-	getArticleComments,
 	updateArticleVotes,
 	deleteArticle,
 } = require("../controllers/articlesController");
+const {
+	putArticleComment,
+	getArticleComments,
+} = require("../controllers/commentsController");
 
 articlesRouter.get("/", getArticles);
 

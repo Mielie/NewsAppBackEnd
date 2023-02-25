@@ -1,16 +1,14 @@
 const {
 	fetchArticles,
 	fetchArticle,
-	newCommentForArticleWithId,
-	fetchArticleComments,
 	selectArticleById,
 	patchArticle,
 	postArticle,
-	checkTopic,
 	countArticles,
 	removeArticle,
 } = require("../models/articlesModels");
 const { fetchUserByUsername } = require("../models/usersModels");
+const { checkTopic } = require("../models/topicsModels");
 
 exports.getArticles = (request, response, next) => {
 	const { topic, author, sort_by, order, limit, p } = request.query;
@@ -39,29 +37,6 @@ exports.getArticleById = (request, response, next) => {
 	return fetchArticle(article_id)
 		.then((article) => {
 			response.status(200).send({ article });
-		})
-		.catch(next);
-};
-
-exports.putArticleComment = (request, response, next) => {
-	const { article_id } = request.params;
-	const newComment = request.body;
-
-	return newCommentForArticleWithId(article_id, newComment)
-		.then((comment) => {
-			response.status(201).send({ comment });
-		})
-		.catch(next);
-};
-
-exports.getArticleComments = (request, response, next) => {
-	const { article_id } = request.params;
-	const { limit, p } = request.query;
-	const checkArticlePromise = fetchArticle(article_id);
-	const fetchCommentsPromise = fetchArticleComments(article_id, limit, p);
-	return Promise.all([fetchCommentsPromise, checkArticlePromise])
-		.then(([comments]) => {
-			response.status(200).send({ comments });
 		})
 		.catch(next);
 };
