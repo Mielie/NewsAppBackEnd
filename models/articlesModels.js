@@ -104,17 +104,6 @@ exports.patchArticle = (article_id, newVotes) => {
 		});
 };
 
-// exports.checkTopic = (topic) => {
-// 	return db
-// 		.query(`SELECT * FROM topics WHERE slug = $1;`, [topic])
-// 		.then(({ rowCount }) => {
-// 			if (!rowCount) {
-// 				return Promise.reject("topic not found");
-// 			}
-// 			return true;
-// 		});
-// };
-
 exports.postArticle = (newArticle) => {
 	const article = [
 		newArticle.author,
